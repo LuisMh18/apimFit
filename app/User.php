@@ -4,6 +4,9 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Rol;
+use App\Entrenamiento;
+use App\ProductoComidaDiaADia;
 
 class User extends Authenticatable
 {
@@ -15,46 +18,18 @@ class User extends Authenticatable
      * @var array
      */
 
-    protected $table = 'users';
+    protected $table = 'usuario';
 
 
-  //atributos que pueden ser asignados de manera masiva, una asignasion masiva de manera masiva en laravel cuando se realiza
-  //el establecimiento de tal atributo por medio del metodo create o update
+   //atributos que pueden ser asignados de manera masiva, una asignasion masiva de manera masiva en laravel cuando se realiza
+    //el establecimiento de tal atributo por medio del metodo create o update
     protected $fillable = [
-        'name', 
-        'email', 
+        'rol_id',
+        'usuario',
+        'email',
         'password',
     ];
 
-
-    /*
-     * - Mutadores y accesores en los modeo
-     * - Son metodos que se implementan en los modelos para la modificación de un atributo y  para acceder a dicho valor
-     *
-     * -- Un mutador se utiliza para modificar el valor original de un atributo antes de hacer la insercion en la base de datos
-     *
-     *-- El accesor se utiliza para modificar el valor de un atributo despuesn de haberlo obtenido de la base de datos
-    */
-
-    /*Antes de insertar el nombre requiere que todos los caracteres esten en minuscula excepto el inicial, entonces en este
-      caso vamos a usur un mutador y un accesor*/
-      //mutador
-      public function setNameAttribute($valor){
-        $this->attributes['name'] = strtolower($valor);//para que el nombre siempre se inserte en minuscula
-      }
-
-      //accesor
-      public function getNameAttribute($valor){
-        //con esto estamos retornando el valor del nombre siempre con la primera letra de cada palabra en mayuscula sin la necesidad de modificarlo en la bd
-        return ucwords($valor);
-      }
-
-
-
-      /*Para el correo electronico solo vamos a poner todo en minuscula por lo cual solo usaremos un mutador */
-      public function setEmailAttribute($valor){
-        $this->attributes['email'] = strtolower($valor);//para que el email siempre se inserte en minuscula
-      }
 
     /**
      * The attributes that should be hidden for arrays.
@@ -63,8 +38,30 @@ class User extends Authenticatable
      */
      //atributos ocultos
     protected $hidden = [
-        'password', 
+        'password',
         'remember_token',
-        'updated_at'
+        'created_at',
+        'updated_at',
     ];
+
+
+    /*El método belongsTo nos permite trabajar con relaciones donde un registro pertenece a otro registro. Este método acepta como primer argumento el nombre de la clase que 
+     *queremos vincular. Eloquent determina el nombre de la llave foránea a partir del nombre del método (en este caso profession) y agregando el sufijo _id a este:
+     *Si en tu base de datos el nombre de la llave foránea no sigue esta convención puedes pasar el nombre de la columna como segundo argumento:
+     *Ejemplo: return $this->belongsTo(Profession::class, 'id_profession');
+    */
+
+    public function rol(){
+      return $this->belongsTo(Rol::class);
+    }
+
+    public function entrenamientos(){
+     return $this->hasMany(Entrenamiento::class);
+   }
+
+
+   public function producto_comida_dia_a_dia(){
+     return $this->hasMany(ProductoComidaDiaADia::class);
+   }
+
 }
