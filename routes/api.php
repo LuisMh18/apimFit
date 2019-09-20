@@ -14,9 +14,24 @@ use Illuminate\Http\Request;
 */
 
 //Authenticate
-Route::post('register', 'Users\LoginController@register');
-Route::post('login', 'Users\LoginController@login');
-Route::get('logout', 'Users\LoginController@logout');
-Route::post('recover', 'Users\LoginController@recover');
-Route::get('user', 'Users\LoginController@user_data');
+Route::post('register', 'AuthenticateController@register');
+Route::post('login', 'AuthenticateController@login');
+Route::get('logout', 'AuthenticateController@logout');
+Route::post('recover', 'AuthenticateController@recover');
 
+
+
+//rutas unicamente para administradores
+Route::group(['middleware' => ['admin']], function(){
+	
+	//catalogos padre------ 
+    //Rol
+	Route::get('rol/data', 'Catalogos\RolController@data');//todos los resultados
+	Route::resource('rol', 'Catalogos\RolController', ['except' => ['create', 'edit']]);
+	Route::post('rol/index', 'Catalogos\RolController@index');
+	//Objetivos
+	Route::get('objetivos/data', 'Catalogos\ObjetivosController@data');//todos los resultados
+	Route::resource('objetivos', 'Catalogos\ObjetivosController', ['except' => ['create', 'edit']]);
+	Route::post('objetivos/index', 'Catalogos\ObjetivosController@index');
+
+});

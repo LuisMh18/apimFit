@@ -12,7 +12,6 @@ trait ApiResponser{
       return response()->json(['data' => $data], $code);
   }
 
-
   protected function showAll($data, $code = 200)
   {
 
@@ -22,47 +21,73 @@ trait ApiResponser{
 
   }
 
-  //metodo que mostrara una instancia especifica, por ejemplo cuando tenemos una instancia de un usuario existente
-  public function showOne(Model $instance, $message = '', $code = 200){
-    return $this->successResponse(
-                    [
-                      'data' => $instance,
-                      'message' => $message
-                    ],
-                     $code
-                   );
+
+   //metodo para los mensajes de error
+  public function errorResponse($message, $code){
+        return response()->json(['error' => $message, 'code' => $code], $code);
   }
 
 
-  //metodo para la paginación 
-  protected function paginate($data)
-  {
+    //metodo para la paginación 
+    protected function paginate($data)
+    {
+  
+      /*Reglas para permitirle al usuario definir el numero de la paginación, como minimo seran 2 y como maximo 50 */
+      $rules = [
+        'per_page' => 'integer|min:2|max:200'
+      ];
+  
+      Validator::validate(request()->all(), $rules);//validamos
+      $r = request()->all();
+    /*  $validate = Validator::make($r, [
+        'per_page' => 'integer|min:2|max:200'
+      ]);
 
-    /*Reglas para permitirle al usuario definir el numero de la paginación, como minimo seran 2 y como maximo 50 */
-    $rules = [
-      'per_page' => 'integer|min:2|max:50'
-    ];
 
-    Validator::validate(request()->all(), $rules);//validamos
-
-    $page = LengthAwarePaginator::resolveCurrentPage();
-
-    $perPage = 10; //valor predifinido a la cantidad de elementos por pagina
-    //si rcibimos el parametro per_page sustituimos el valor de la cantidad de elementos de pagina por defecto por el recibido
-    if (request()->has('per_page')) {
-      $perPage = (int) request()->per_page;
+    if ($validate->fails()) {
+        return response()->json([
+         'error' => 'validate',
+         'errors' => $validate->errors(),
+         'code' => 422
+        ]);
+    }*/
+  
+      $page = LengthAwarePaginator::resolveCurrentPage();
+  
+      $perPage = 10; //valor predifinido a la cantidad de elementos por pagina
+      //si rcibimos el parametro per_page sustituimos el valor de la cantidad de elementos de pagina por defecto por el recibido
+      if (request()->has('per_page')) {
+        $perPage = (int) request()->per_page;
+      }
+  
+      $results = $data->slice(($page - 1) * $perPage, $perPage)->values();
+  
+      $paginated = new LengthAwarePaginator($results, $data->count(), $perPage, $page, [
+        'path' => LengthAwarePaginator::resolveCurrentPath(),
+      ]);
+  
+      $paginated->appends(request()->all());
+  
+      return $paginated;
     }
 
-    $results = $data->slice(($page - 1) * $perPage, $perPage)->values();
 
-    $paginated = new LengthAwarePaginator($results, $data->count(), $perPage, $page, [
-      'path' => LengthAwarePaginator::resolveCurrentPath(),
-    ]);
 
-    $paginated->appends(request()->all());
+   /* public function miMetodo()
+    {
 
-    return $paginated;
-  }
+      if(Auth::user()->rol_id !== 3){
+            return response()->json([
+                'error' => true,
+                'message' => 'No tienes permisos de administrador',
+                 401
+       ]);
+        } 
+
+        return $this->prueba();
+      
+    }*/
+
 
 
 }

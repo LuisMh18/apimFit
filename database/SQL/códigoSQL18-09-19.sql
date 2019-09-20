@@ -70,6 +70,7 @@ VALUES
 (5, 2, "Yerai", "12345", "test5@outlook.es", "123", 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 SELECT * FROM usuario;
+DELETE FROM usuario WHERE id=6;
 DESC usuario;
 
 /* usuario detalle--------------*/
@@ -78,8 +79,8 @@ CREATE TABLE `usuario_detalle` (
   `usuario_id` int(10) unsigned NOT NULL,
   `nombre` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `paterno` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `materno` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `imagen` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
+  `materno` varchar(100) DEFAULT " ",
+  `imagen` varchar(250) COLLATE utf8_unicode_ci NULL,
   FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -160,9 +161,10 @@ LEFT OUTER jOIN rol ON usuario.rol_id = rol.id
 ORDER BY usuario.id DESC;
 
 /* vista para usuario, detalle y rol--------------*/
+DROP VIEW IF EXISTS vistaUsuarioDetalle;
 CREATE VIEW vistaUsuarioDetalle AS
 SELECT usuario.id,  usuario.usuario, usuario.email, usuario.status, usuario.created_at as FECHA, 
-       CONCAT(usuario_detalle.nombre, ' ' ,usuario_detalle.paterno, ' ', usuario_detalle.materno) as nombre_usuario, usuario_detalle.imagen,
+       CONCAT(usuario_detalle.nombre, ' ' ,usuario_detalle.paterno, ' ', usuario_detalle.materno) as nombre_completo, usuario_detalle.imagen,
        usuario_detalle_fit.estatura,  usuario_detalle_fit.peso_libras, usuario_detalle_fit.peso_kilos, usuario_detalle_fit.foto_actual, usuario_detalle_fit.descripcion, usuario_detalle_fit.fecha AS fecha_foto_actual,   
        rol.id as idRol, rol.nombre as rol
 FROM usuario 
@@ -513,6 +515,7 @@ SELECT * FROM anio;
 /* Catalogo para entrenamiento(motor)--------------*/
 CREATE TABLE `entrenamiento` (
   `id` int(10) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `hora` time,
   `dia_id` int(10) unsigned NOT NULL,
   `mes_id` int(10) unsigned NOT NULL,
   `anio_id` int(10) unsigned NOT NULL,/*por defecto el año actual*/
@@ -529,11 +532,11 @@ CREATE TABLE `entrenamiento` (
 
 
 INSERT INTO `entrenamiento` 
-(`id`, `dia_id`, `mes_id`, `anio_id`, `fecha`,  `usuario_id`, `notas`, `created_at`, `updated_at`) 
+(`id`, `hora`, `dia_id`, `mes_id`, `anio_id`, `fecha`,  `usuario_id`, `notas`, `created_at`, `updated_at`) 
 VALUES 
-(1, 1, 10, 2, "2019-09-19", 1, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, 2, 10, 2, "2019-09-19", 2, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(3, 3, 10, 2, "2019-09-19", 3, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(1, "04:00:00", 1, 10, 2, "2019-09-19", 1, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, "04:00:00", 2, 10, 2, "2019-09-19", 2, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, "04:00:00", 3, 10, 2, "2019-09-19", 3, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 SELECT * FROM entrenamiento;
 
@@ -639,6 +642,7 @@ SELECT * FROM comidas_dia;
 /* Catalogo para producto_comida_dia_a_dia--------------*/
 CREATE TABLE `producto_comida_dia_a_dia` (
   `id` int(10) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `fecha` date,
   `producto_id` int(10) unsigned NOT NULL,
   `dia_id` int(10) unsigned NOT NULL,
   `comidas_dia_id` int(10) unsigned NOT NULL,
@@ -654,18 +658,18 @@ CREATE TABLE `producto_comida_dia_a_dia` (
 
 
 INSERT INTO `producto_comida_dia_a_dia` 
-(`id`, `producto_id`, `dia_id`, `comidas_dia_id`, `usuario_id`,  `notas`, `created_at`, `updated_at`) 
+(`id`, `fecha`, `producto_id`, `dia_id`, `comidas_dia_id`, `usuario_id`,  `notas`, `created_at`, `updated_at`) 
 VALUES 
-(1, 1, 1, 2, 1, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, 2, 1, 3, 1, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(3, 1, 1, 4, 1, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(1, "2019-09-19", 1, 1, 2, 1, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, "2019-09-19", 2, 1, 3, 1, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, "2019-09-19", 1, 1, 4, 1, "", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 SELECT * FROM producto_comida_dia_a_dia;
 
 DROP VIEW IF EXISTS vistaComidasDias;
 /*Vista para obtener las comidas del día*/
 CREATE VIEW vistaComidasDias AS
-SELECT producto_comida_dia_a_dia.id as idProductoComidaDia,
+SELECT producto_comida_dia_a_dia.id as idProductoComidaDia, producto_comida_dia_a_dia.fecha as fechaComida,
 dias.nombre AS nombreDia, dias.created_at AS fecha_dia,
 comidas_dia.descripcion AS descripcionComida, comidas_dia.hora, comidas_dia.notas AS notasComida,
 productos.id AS idProducto, productos.nombre AS nombreProducto, tipo_producto.tipo AS tipoProducto, tipo_producto.origen AS tipoProductoOrigen, productos.porcion_o_gramos, productos.proteina, productos.calorias, productos.grasas, productos.proteina_completa, productos.notas AS notasProdcuto

@@ -34,13 +34,13 @@ class EmptyStringParser implements ParserInterface
     /**
      * {@inheritdoc}
      */
-    public function parse(string $source): array
+    public function parse($source)
     {
         // Matches an empty string
         if ('' == $source) {
-            return array(new SelectorNode(new ElementNode(null, '*')));
+            return [new SelectorNode(new ElementNode(null, '*'))];
         }
 
-        return array();
+        return [];
     }
 }
