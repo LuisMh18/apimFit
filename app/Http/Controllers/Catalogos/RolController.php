@@ -87,6 +87,7 @@ class RolController extends Controller
             return response()->json([
              'error' => 'validate',
              'errors' => $validate->errors(),
+             'field' => $validate->errors()->keys(),
              'code' => 422
             ]);
         }
@@ -140,6 +141,22 @@ class RolController extends Controller
      */
     public function update(Request $request, Rol $rol)
     {
+
+
+          $validate = Validator::make($request->all(), [
+            'nombre' => 'required|min:3',
+          ]);
+
+
+        if ($validate->fails()) {
+            return response()->json([
+             'error' => 'validate',
+             'errors' => $validate->errors(),
+             'field' => $validate->errors()->keys(),
+             'code' => 422
+            ]);
+        }
+
 
           if($request->has('nombre')){
             $rol->nombre = $request->nombre;

@@ -92,6 +92,7 @@ class ObjetivosController extends Controller
             return response()->json([
              'error' => 'validate',
              'errors' => $validate->errors(),
+             'field' => $validate->errors()->keys(),
              'code' => 422
             ]);
         }
@@ -147,6 +148,20 @@ class ObjetivosController extends Controller
      */
     public function update(Request $request, $id)
     {
+
+        $validate = Validator::make($request->all(), [
+            'descripcion' => 'required|min:3',
+          ]);
+
+
+        if ($validate->fails()) {
+            return response()->json([
+             'error' => 'validate',
+             'errors' => $validate->errors(),
+             'field' => $validate->errors()->keys(),
+             'code' => 422
+            ]);
+        }
 
          $objetivos = Objetivos::find($id);
 
