@@ -33,5 +33,10 @@ Route::group(['middleware' => ['admin']], function(){
 	Route::get('objetivos/data', 'Catalogos\ObjetivosController@data');//todos los resultados
 	Route::resource('objetivos', 'Catalogos\ObjetivosController', ['except' => ['create', 'edit']]);
 	Route::post('objetivos/index', 'Catalogos\ObjetivosController@index');
+	//Usuario
+	Route::put('usuarios/updatePassword/{id}', 'Catalogos\UsuariosController@updatePassword');
+	Route::get('usuarios/data', 'Catalogos\UsuariosController@data');//todos los resultados
+	Route::resource('usuarios', 'Catalogos\UsuariosController', ['except' => ['create', 'edit']]);
+	Route::post('usuarios/index', 'Catalogos\UsuariosController@index');
 
 });
